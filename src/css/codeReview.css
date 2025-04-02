@@ -44,3 +44,35 @@
 .diff-check-btn:hover {
     background-color: #1e88e5;
 }
+
+.section-title {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #ccc;
+    width: 100%; /* 전체 너비 */
+}
+
+.section-title h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    padding-left: 12px;
+    position: relative;
+    color: #333;
+    text-align: left;
+    width: 100%; /* h2 자체도 가로 너비 100% */
+}
+
+/* 왼쪽 파란 세로 막대 */
+.section-title h2::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #0056d2;
+    border-radius: 2px;
+}

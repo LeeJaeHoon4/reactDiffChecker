@@ -100,6 +100,9 @@ function CodeReview(){
     }
     return (
         <div className="container">
+            <div className="section-title">
+                <h2>CodeReview With GPT</h2>
+            </div>
             <div className="panel">
                 <div className="editor-container">
                     <Editor
@@ -132,8 +135,8 @@ function CodeReview(){
             <button className="diff-check-btn" onClick={diffCheck}>차이점 찾기</button>
 
             {showDiff && (
-                <Suspense fallback={<div style={{ color: 'white' }}>Diff 로딩 중...</div>}>
-                    <DiffEditorWrapper original={originalCode} modified={modifiedCode} />
+                <Suspense fallback={<div style={{color: 'white'}}>Diff 로딩 중...</div>}>
+                    <DiffEditorWrapper original={originalCode} modified={modifiedCode}/>
                 </Suspense>
             )}
         </div>
