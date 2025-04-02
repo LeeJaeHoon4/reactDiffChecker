@@ -5,8 +5,7 @@ function Sidebar() {
     return (
         <div className="sidebar">
             <div className="logo">
-                <h1>CREAMHOUSE</h1>
-                <p>Enjoy our creative dream</p>
+                <img src="/logo_w.png" alt="흰색 로고"/>
             </div>
             <div className="menu-tabs">
                 <span>회원(관리자,사용자) 관리</span>

@@ -1,33 +1,53 @@
 .sidebar {
-    width: 240px;
+    width: 330px;
+    height: 100vh;
     background-color: #3b3b3b;
     color: white;
-    height: 100vh;
-    padding: 40px 20px;
+    padding: 40px 24px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
+/* 로고 영역 */
 .sidebar .logo {
     text-align: center;
     border-bottom: 1px solid #555;
-    padding-bottom: 20px;
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    width : 100%;
 }
+.sidebar .logo img {
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
+/* 탭 메뉴 영역 */
 .sidebar .menu-tabs {
     display: flex;
-    gap: 40px;
+    gap: 32px;
     font-size: 14px;
-    margin-top: 10px;
-    padding-left: 10px;
+    padding-left: 8px;
+    margin-bottom: 20px;
+    color: #ddd;
 }
 
-.sidebar .logo h1 {
-    font-family: 'Georgia', serif;
-    font-size: 22px;
-    margin: 0;
+/* 예시: 메뉴 항목 리스트 */
+.sidebar .menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-left: 8px;
+    font-size: 15px;
 }
 
-.sidebar .logo p {
-    font-size: 11px;
-    margin-top: 5px;
+.sidebar .menu-list a {
+    text-decoration: none;
     color: #ccc;
+    transition: color 0.2s ease;
+}
+
+.sidebar .menu-list a:hover {
+    color: #fff;
 }
