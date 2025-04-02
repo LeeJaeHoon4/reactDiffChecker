@@ -95,7 +95,7 @@ function CodeReview(){
             setModifiedCode(modified);
             setShowDiff(true);
         } else {
-            alert('두 영역 모두에 값이 있어야 diff를 비교할 수 있어요.');
+            alert('두 영역 모두에 값이 있어야 차이점을 비교할 수 있어요.');
         }
     }
     return (
