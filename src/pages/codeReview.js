@@ -1,4 +1,5 @@
 import {lazy, Suspense, useEffect, useRef, useState} from 'react';
+import "@/css/codeReview.css";
 import Editor from '@monaco-editor/react';
 
 const DiffEditorWrapper = lazy(() => import('@/components/DiffEditorWrapper'));

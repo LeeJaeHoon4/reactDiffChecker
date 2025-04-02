@@ -1,0 +1,33 @@
+.header {
+    background-color: #f8f8f8;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.page-title {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.user-info {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.mypage {
+    color: blue;
+    border: 1px solid blue;
+    background: transparent;
+    padding: 4px 10px;
+}
+
+.logout {
+    border: 1px solid #000;
+    background: transparent;
+    padding: 4px 10px;
+}
+

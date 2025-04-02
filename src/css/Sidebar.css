@@ -1,0 +1,33 @@
+.sidebar {
+    width: 240px;
+    background-color: #3b3b3b;
+    color: white;
+    height: 100vh;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+.sidebar .logo {
+    text-align: center;
+    border-bottom: 1px solid #555;
+    padding-bottom: 20px;
+}
+.sidebar .menu-tabs {
+    display: flex;
+    gap: 40px;
+    font-size: 14px;
+    margin-top: 10px;
+    padding-left: 10px;
+}
+
+.sidebar .logo h1 {
+    font-family: 'Georgia', serif;
+    font-size: 22px;
+    margin: 0;
+}
+
+.sidebar .logo p {
+    font-size: 11px;
+    margin-top: 5px;
+    color: #ccc;
+}

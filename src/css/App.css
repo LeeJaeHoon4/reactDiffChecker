@@ -2,75 +2,39 @@
   height: 100vh;
   text-align: center;
 }
-
+/* 전체 앱 레이아웃 */
 .app-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
 
+/* header는 고정 높이 */
+header {
+  height: 60px;
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 나머지 영역은 화면을 꽉 채움 */
 .body-layout {
   display: flex;
-  flex: 1;
+  flex: 1; /* 남은 공간 모두 차지 */
   overflow: hidden;
 }
 
+/* 사이드바 설정 */
 .sidebar {
-  width: 240px;
-  background-color: #3b3b3b;
+  width: 220px;
+  background: #333;
   color: white;
 }
 
+/* 메인 컨텐츠 영역 */
 .main-content {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background-color: #f9f9f9;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 100%;
-  margin: 3rem auto;
-  padding: 0 1rem;
-}
-
-.panel {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-  width: 100%;
-  flex-wrap: wrap;
-}
-
-.editor-container,
-.result-container {
-  flex: 1 1 48%;
-  min-width: 300px;
-  height: 400px;
-}
-
-
-.submit-btn,
-.diff-check-btn {
-  margin-top: 1rem;
-  margin-right: 1rem;
-  padding: 0.6rem 1.5rem;
-  font-size: 1rem;
-  border: none;
-  background-color: #4CAF50;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.diff-check-btn {
-  background-color: #2196F3;
-}
-
-.diff-check-btn:hover {
-  background-color: #1e88e5;
+  background: #f9f9f9;
 }

@@ -1,7 +1,8 @@
 import {Fragment, useEffect, useRef} from "react";
 import { useNavigate } from 'react-router-dom';
+import '@/css/BearPage.css';
 
-function Body(){
+function BearPage(){
     const leftEyeRef = useRef(null);
     const rightEyeRef = useRef(null);
     const navigate = useNavigate();
@@ -40,13 +41,25 @@ function Body(){
 
     return (
         <Fragment>
-            <form className="AppLogo">
-                <img src="/bear.png" alt="곰돌이" className="bear" onClick={() => navigate("/codeReview")}/>
-                <div className="eye left-eye" ref={leftEyeRef}></div>
-                <div className="eye right-eye" ref={rightEyeRef}></div>
-            </form>
+            <div className="login-wrapper">
+                <div className="login-box">
+                    <h1 className="logo">
+                        <img src="/logo.png" alt="곰돌이" style={{width: "100%"}}/>
+                    </h1>
+                    <div className="bear-wrapper">
+                        <div className="bear-container" onClick={() => navigate('/codeReview')}>
+                            <img src="/bear.png" alt="곰돌이" className="bear-img"/>
+                            <div className="eye left-eye" ref={leftEyeRef}></div>
+                            <div className="eye right-eye" ref={rightEyeRef}></div>
+                        </div>
+                    </div>
+                    <footer>
+                        <p>Copyright 크림하우스㈜ creamCms. All rights reserved.</p>
+                    </footer>
+                </div>
+            </div>
         </Fragment>
     );
 }
 
-export default Body;
+export default BearPage;
