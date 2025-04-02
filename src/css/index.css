@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  text-align: center;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+.header{
+  cursor: pointer;
+}
+
+.bear {
+  position: absolute;
+  width: 450px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  cursor: pointer;
+}
+
+.eye {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.left-eye {
+  background-image: url('../../public/left.png'); /* public 폴더 기준이므로 경로 수정 */
+  top: calc(50% - 50px); /* 곰 중앙 기준 위로 50px */
+  left: calc(50% - 40px); /* 곰 중앙 기준 왼쪽으로 40px */
+}
+
+.right-eye {
+  background-image: url('../../public/right.png');
+  top: calc(50% - 50px); /* 곰 중앙 기준 위로 50px */
+  left: calc(50% + 20px); /* 곰 중앙 기준 오른쪽으로 20px */
+}
