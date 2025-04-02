@@ -46,3 +46,72 @@ code {
   top: calc(50% - 50px); /* 곰 중앙 기준 위로 50px */
   left: calc(50% + 20px); /* 곰 중앙 기준 오른쪽으로 20px */
 }
+
+/* components/layout/Sidebar.css */
+.sidebar {
+  width: 240px;
+  background-color: #3b3b3b;
+  color: white;
+  height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.logo {
+  text-align: center;
+  border-bottom: 1px solid #555;
+  padding-bottom: 20px;
+}
+
+.logo h1 {
+  font-family: 'Georgia', serif;
+  font-size: 22px;
+  margin: 0;
+}
+
+.logo p {
+  font-size: 11px;
+  margin-top: 5px;
+  color: #ccc;
+}
+/* components/layout/Header.css */
+.header {
+  background-color: #f8f8f8;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+.page-title {
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.user-info {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.mypage {
+  color: blue;
+  border: 1px solid blue;
+  background: transparent;
+  padding: 4px 10px;
+}
+
+.logout {
+  border: 1px solid #000;
+  background: transparent;
+  padding: 4px 10px;
+}
+
+.menu-tabs {
+  display: flex;
+  gap: 40px;
+  font-size: 14px;
+  margin-top: 10px;
+  padding-left: 10px;
+}
