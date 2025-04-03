@@ -1,3 +1,6 @@
+import React from 'react';
+import { Box, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider } from '@mui/material';
+import { Link, useLocation } from 'react-router-dom';
 import {use, useState} from "react";
 import "@/css/SidebarMenu.css";
 import {useNavigate} from "react-router-dom";
@@ -8,8 +11,8 @@ function SidebarMenu(){
     const menuData = [
         {
             title: '콘텐츠 관리',
-            children: ['코드리뷰 이력 관리', '이미지 관리', '팝업 관리'],
-            routes : ['/codeHist','/','/']
+            children: ['코드리뷰', '코드리뷰 이력 관리', '팝업 관리'],
+            routes : ['/codeReview','/codeHist','/']
         },
         {
             title: '회원 관리',

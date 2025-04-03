@@ -1,33 +1,47 @@
 .header {
-    background-color: #f8f8f8;
-    padding: 10px 20px;
-    border-bottom: 1px solid #ccc;
+    background-color: white;
+    color: #333;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #d2d2d2;
 }
 
 .page-title {
-    color: #888;
-    font-size: 13px;
-    margin-bottom: 5px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .user-info {
     display: flex;
-    justify-content: flex-end;
     align-items: center;
-    gap: 10px;
-    font-size: 13px;
+    gap: 1rem;
 }
 
-.mypage {
-    color: blue;
-    border: 1px solid blue;
-    background: transparent;
-    padding: 4px 10px;
+.user-icon {
+    font-size: 1.2rem;
 }
 
-.logout {
-    border: 1px solid #000;
-    background: transparent;
-    padding: 4px 10px;
+.user-name {
+    font-size: 0.9rem;
+}
+
+.mypage, .logout {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #444;
+    color: white;
+}
+
+.mypage:hover, .logout:hover {
+    background-color: #555;
 }
 

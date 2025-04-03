@@ -1,6 +1,6 @@
 import React from 'react';
 import '@/css/Sidebar.css'
-import SidebarMenu from "@/components/SidebarMenu.js"
+import SidebarMenu from "@/components/common/SidebarMenu.js"
 
 function Sidebar() {
     return (

@@ -1,8 +1,8 @@
 import './css/App.css';
 import React, {Fragment} from "react";
 import RouterConfig from "@/router";
-import Sidebar from "./components/Sidebar";
-import Header from "./components/Header";
+import Sidebar from "./components/common/Sidebar";
+import Header from "./components/common/Header";
 import {useLocation} from "react-router-dom";
 
 function App() {

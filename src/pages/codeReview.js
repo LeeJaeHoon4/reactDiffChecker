@@ -1,166 +1,249 @@
-import {lazy, startTransition, Suspense, useEffect, useRef, useState} from 'react';
+import {lazy, Suspense, useEffect, useRef, useState} from 'react';
 import {getCodeReview} from "@/api/codeReview";
 import "@/css/codeReview.css";
 import Editor from '@monaco-editor/react';
-import {  Box, LinearProgress, Typography } from '@mui/material';
+import { Box } from '@mui/material';
+import PropTypes from 'prop-types';
+import {
+    CODE_HISTORY_KEY,
+    TYPING_SPEED,
+    PROGRESS_STEP,
+    PROGRESS_DELAY,
+    PROGRESS_MAX1,
+    PROGRESS_MAX2,
+    PROGRESS_MAX3,
+    EDITOR_OPTIONS,
+    ERROR_MESSAGES
+} from '@/constants/codeReview';
+import CodeReviewEditor from '@/components/codeReview/CodeReviewEditor';
+import CodeReviewResult from '@/components/codeReview/CodeReviewResult';
+import CodeReviewProgress from '@/components/codeReview/CodeReviewProgress';
+import { useLocation } from 'react-router-dom';
 
 const DiffEditorWrapper = lazy(() => import('@/components/DiffEditorWrapper'));
 
+/**
+ * GPT를 활용한 코드 리뷰 기능을 제공하는 컴포넌트
+ * @component
+ */
 function CodeReview(){
-    const editorRef = useRef(null);             // code-block side 값 ref
-    const [index, setIndex] = useState(0);                  // result-block side 타이핑 효과를 위한 index
-    const responseRef = useRef(null);           //  axios 이후 result-block side에 표시될 값 ref
-    const [displayText,setText] = useState(false);          // result-block side 랜더링 처리를 위한 useState
-    const [showDiff, setShowDiff] = useState(false);       //  Diff checker side 랜더링 처리를 위한 flag
-    const [originalCode, setOriginalCode] = useState('');   // Diff Checker 비교값 - code-block side
-    const [modifiedCode, setModifiedCode] = useState('');   // Diff Checker 비교값 - result-block side
-    const [responseText, setResponseText] = useState('');   // GPT Code Review 값 처리
-    const [loading, setLoading] = useState(false);        // MUI를 사용한 로딩바 처리
-    const [progress, setProgress] = useState(0);          // 로딩바 progress 처리
+    const editorRef = useRef(null);                         // 입력 코드 에디터 참조
+    const [index, setIndex] = useState(0);                  // 타이핑 애니메이션 인덱스
+    const responseRef = useRef(null);                       // 결과 코드 에디터 참조
+    const [displayText, setText] = useState(false);         // 타이핑 애니메이션 표시 여부
+    const [showDiff, setShowDiff] = useState(false);        // 차이점 표시 여부
+    const [originalCode, setOriginalCode] = useState('');   // 원본 코드
+    const [modifiedCode, setModifiedCode] = useState('');   // 수정된 코드
+    const [responseText, setResponseText] = useState('');   // 결과 코드
+    const [loading, setLoading] = useState(false);          // 로딩 상태
+    const [progress, setProgress] = useState(0);            // 진행 상태
+    const [error, setError] = useState(null);               // 오류 메시지
+    const location = useLocation();
 
-    //code-block 쪽 입력 값 처리 - start
+    useEffect(() => {
+        // 히스토리에서 전달받은 코드와 리뷰가 있는 경우
+        if (location.state?.originalCode && location.state?.reviewCode) {
+            setOriginalCode(location.state.originalCode);
+            setModifiedCode(location.state.reviewCode);
+            setShowDiff(true);
+        }
+    }, [location.state]);
+
+    /**
+     * 에디터 마운트 이벤트 처리
+     * @param {Object} editor - Monaco 에디터 인스턴스
+     */
     const handleEditorDidMount = (editor) => {
-        // Monaco editor 인스턴스가 마운트될 때 참조 저장
         editorRef.current = editor;
     };
 
-    const codeSubmit = async () => {
-        //코드 전송 버튼 클릭시 동작
-        setLoading(true);
-
-        await (async () => {
-            const inputCode = editorRef.current.getValue();
-            //result-block 쪽 텍스트 reference 를 초기화 하여 재 랜더링 유도
-            responseRef.current.setValue('');
-
-            try {
-                // DiffEditor 먼저 unmount - 하지 않으면 에러 발생
-                setShowDiff(false);
-                for (let i = 0; i <= 80; i += 5) {
-                    await new Promise((res) => setTimeout(res, 50)); // 딜레이
-                    setProgress(i);
-                }
-                //실제로 응답을 받은 시점 이후로 체이닝을 걸어서 로딩바 동작을 현실성 있게 조작
-                await getCodeReview(inputCode).then((review) =>{
-                    setLoading(false); //로딩창 닫기
-                    setResponseText(review);
-                    setIndex(0);
-                    setText(true);
-                });
-
-            } catch (error) {
-                alert("백엔드 서버로 부터 응답을 받을 수 없습니다.");
-            } finally {
-                setLoading(false); //로딩창 닫기
-                setProgress(0); // 초기화
-            }
-        })();
-    };
-    //code-block 쪽 입력 값 처리 - end
-
-    //result-block 쪽 입력 값 처리 - start
+    /**
+     * 결과 에디터 마운트 이벤트 처리
+     * @param {Object} editor - Monaco 에디터 인스턴스
+     */
     const handleResultDidMount = (editor) => {
-        // Monaco editor 인스턴스가 마운트될 때 참조 저장
         responseRef.current = editor;
     };
 
+    /**
+     * 코드 리뷰 제출 처리
+     * @async
+     */
+    const codeSubmit = async () => {
+        setLoading(true);
+        setError(null);
+        setProgress(0);
+
+        try {
+            const inputCode = editorRef.current?.getValue();
+            if (!inputCode?.trim()) {
+                throw new Error(ERROR_MESSAGES.EMPTY_CODE);
+            }
+
+            responseRef.current?.setValue('');
+            setShowDiff(false);
+
+            // 0~40%: 분석 중 진행 상태
+            await new Promise((resolve) => {
+                let currentProgress = 0;
+                const interval = setInterval(() => {
+                    currentProgress += PROGRESS_STEP;
+                    setProgress(currentProgress);
+                    
+                    if (currentProgress >= PROGRESS_MAX1) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, PROGRESS_DELAY);
+            });
+
+            // 40~60%: 분석 완료 및 코드 개선 중
+            await new Promise((resolve) => {
+                let currentProgress = PROGRESS_MAX1;
+                const interval = setInterval(() => {
+                    currentProgress += PROGRESS_STEP;
+                    setProgress(currentProgress);
+                    
+                    if (currentProgress >= PROGRESS_MAX2) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, PROGRESS_DELAY);
+            });
+
+            // API 호출
+            const review = await getCodeReview(inputCode);
+
+            // 60~80%: 코드 개선 완료 및 리뷰 저장 중
+            await new Promise((resolve) => {
+                let currentProgress = PROGRESS_MAX2;
+                const interval = setInterval(() => {
+                    currentProgress += PROGRESS_STEP;
+                    setProgress(currentProgress);
+                    
+                    if (currentProgress >= PROGRESS_MAX3) {
+                        clearInterval(interval);
+                        resolve();
+                    }
+                }, PROGRESS_DELAY);
+            });
+
+            // 히스토리 저장
+            const historyItem = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                code: inputCode,
+                review: review,
+                title: `Code Review ${new Date().toLocaleString()}`
+            };
+
+            const existingHistory = JSON.parse(localStorage.getItem(CODE_HISTORY_KEY) || '[]');
+            const updatedHistory = [historyItem, ...existingHistory];
+            localStorage.setItem(CODE_HISTORY_KEY, JSON.stringify(updatedHistory));
+
+            // 모든 진행이 완료된 후에만 리뷰 표시
+            await new Promise((resolve) => {
+                setTimeout(() => {
+                    setResponseText(review);
+                    setIndex(0);
+                    setText(true);
+                    setLoading(false);
+                    setProgress(0);
+                    resolve();
+                }, 500);
+            });
+
+        } catch (error) {
+            console.error('Code review error:', error);
+            setError(error.message || ERROR_MESSAGES.SERVER_ERROR);
+            setLoading(false);
+            setProgress(0);
+        }
+    };
+
+    /**
+     * 타이핑 애니메이션 효과 처리
+     */
     useEffect(() => {
+        let timeout;
         if (displayText && index < responseText?.length && responseRef.current) {
-            const timeout = setTimeout(() => {
+            timeout = setTimeout(() => {
                 if(responseRef.current){
                     const currentText = responseRef.current.getValue();
-                    responseRef.current.setValue(currentText +responseText[index]);
+                    responseRef.current.setValue(currentText + responseText[index]);
                 }
-                setIndex((prev) => prev+1);
-            }, 10); // 속도 조절 (ms)
-
-            return () => clearTimeout(timeout);
+                setIndex((prev) => prev + 1);
+            }, TYPING_SPEED);
         }
-    }, [index, displayText,responseText]);
-    //result-block 쪽 입력 값 처리 - end
+        return () => {
+            if (timeout) clearTimeout(timeout);
+        };
+    }, [index, displayText, responseText]);
 
-    //DiffChecker 기능 -start
-    const diffCheck = () =>{
-        const original = editorRef.current.getValue();
-        const modified = responseRef.current.getValue();
+    /**
+     * 원본 코드와 수정된 코드 비교
+     */
+    const diffCheck = () => {
+        const original = editorRef.current?.getValue();
+        const modified = responseRef.current?.getValue();
 
-        if (original.trim() && modified.trim()) {
-            setOriginalCode(original);
-            setModifiedCode(modified);
-            setShowDiff(true);
-        } else {
-            alert('두 영역 모두에 값이 있어야 차이점을 비교할 수 있어요.');
+        if (!original?.trim() || !modified?.trim()) {
+            setError(ERROR_MESSAGES.COMPARE_ERROR);
+            return;
         }
-    }
-    //DiffChecker 기능 -end
+
+        setOriginalCode(original);
+        setModifiedCode(modified);
+        setShowDiff(true);
+        setError(null);
+    };
+
     return (
         <div className="container">
-            {loading && (
-                <Box
-                    sx={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 1300,
-                    }}
-                >
-                    <Box sx={{ width: '50%', mb: 2 }}>
-                        <LinearProgress variant="determinate" value={progress} />
-                    </Box>
-                    <Typography variant="h6" sx={{ color: '#fff' }}>
-                        {progress < 50
-                            ? `${progress}% 분석 중...`
-                            : progress < 100
-                                ? <>분석 완료!!<br/>코드 개선 사항 작성중~</>
-                                : '작업 완료!!!'}
-                    </Typography>
+            <CodeReviewProgress progress={progress} loading={loading} />
+
+            {error && (
+                <Box className="error-box">
+                    {error}
                 </Box>
             )}
+
             <div className="section-title">
                 <h2>CodeReview With GPT</h2>
             </div>
-            <div className="panel">
-                <div className="editor-container">
-                    <Editor
-                        className="code-block"
-                        defaultLanguage="markdown"
-                        theme="vs-dark"
-                        onMount={handleEditorDidMount}
-                        options={{
-                            automaticLayout: true
-                        }}
-                    />
-                </div>
 
-                <div className="result-container">
-                    <Editor
-                        className="result-block"
-                        theme="vs-dark"
-                        language="markdown"
-                        options={{
-                            readOnly: true,
-                            automaticLayout: true
-                        }}
-                        onMount={handleResultDidMount}
-                    />
-                </div>
+            <div className="panel">
+                <CodeReviewEditor onEditorMount={handleEditorDidMount} />
+                <CodeReviewResult onResultMount={handleResultDidMount} />
             </div>
 
-            <button className="submit-btn" onClick={codeSubmit}>전송</button>
-            <button className="diff-check-btn" onClick={diffCheck}>차이점 찾기</button>
+            <div className="button-container">
+                <button 
+                    className="submit-btn" 
+                    onClick={codeSubmit}
+                    disabled={loading}
+                    aria-label="Submit code for review"
+                >
+                    전송
+                </button>
+                <button 
+                    className="diff-check-btn" 
+                    onClick={diffCheck}
+                    disabled={loading}
+                    aria-label="Compare code differences"
+                >
+                    차이점 찾기
+                </button>
+            </div>
 
             {showDiff && (
                 <div className="panel">
                     <div className="editor-container">
                         <Suspense fallback={<div style={{color: 'white'}}>Diff 로딩 중...</div>}>
-                            <DiffEditorWrapper original={originalCode} modified={modifiedCode}/>
+                            <DiffEditorWrapper 
+                                original={originalCode} 
+                                modified={modifiedCode}
+                            />
                         </Suspense>
                     </div>
                 </div>
@@ -168,5 +251,9 @@ function CodeReview(){
         </div>
     );
 }
+
+CodeReview.propTypes = {
+    // 필요한 경우 PropTypes 추가
+};
 
 export default CodeReview;
