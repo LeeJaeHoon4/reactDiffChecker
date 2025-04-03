@@ -1,7 +1,7 @@
 import { Routes, Route} from 'react-router-dom';
 import BearPage from '@/pages/BearPage';
-import CodeReview from "@/pages/codeReview";
-import CodeHist from "@/pages/codeHist";
+import CodeReview from "@/pages/contentMange/codeReview";
+import CodeHist from "@/pages/contentMange/codeHist";
 
 function RouterConfig(){
     return (

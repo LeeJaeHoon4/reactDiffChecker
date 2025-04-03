@@ -19,6 +19,7 @@ import CodeReviewEditor from '@/components/codeReview/CodeReviewEditor';
 import CodeReviewResult from '@/components/codeReview/CodeReviewResult';
 import CodeReviewProgress from '@/components/codeReview/CodeReviewProgress';
 import { useLocation } from 'react-router-dom';
+import CodeHist from "@/pages/contentMange/codeHist";
 
 const DiffEditorWrapper = lazy(() => import('@/components/DiffEditorWrapper'));
 
