@@ -23,9 +23,9 @@ function DiffEditorWrapper({ original, modified }) {
 
     return (
         <DiffEditor
+            className="diff-block"
             original={original}
             modified={modified}
-            height="400px"
             language="markdown"
             theme="vs-dark"
             onMount={handleEditorDidMount}

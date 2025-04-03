@@ -18,10 +18,14 @@
 .editor-container,
 .result-container {
     flex: 1 1 48%;
-    min-width: 300px;
-    height: 400px;
+    min-width: 400px;
+    height: 600px;
 }
 
+.code-block,
+.result-block{
+    height : 100%;
+}
 
 .submit-btn,
 .diff-check-btn {

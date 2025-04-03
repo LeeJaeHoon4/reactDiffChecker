@@ -1,62 +1,71 @@
-import {lazy, Suspense, useEffect, useRef, useState} from 'react';
+import {lazy, startTransition, Suspense, useEffect, useRef, useState} from 'react';
+import {getCodeReview} from "@/api/codeReview";
 import "@/css/codeReview.css";
 import Editor from '@monaco-editor/react';
+import {  Box, LinearProgress, Typography } from '@mui/material';
 
 const DiffEditorWrapper = lazy(() => import('@/components/DiffEditorWrapper'));
 
 function CodeReview(){
-    const [displayText,setText] = useState(false);
-    const [index, setIndex] = useState(0);
-    const editorRef = useRef(null);
-    const responseRef = useRef(null);
-    const [showDiff, setShowDiff] = useState(false);
-    const [originalCode, setOriginalCode] = useState('');
-    const [modifiedCode, setModifiedCode] = useState('');
+    const editorRef = useRef(null);             // code-block side 값 ref
+    const [index, setIndex] = useState(0);                  // result-block side 타이핑 효과를 위한 index
+    const responseRef = useRef(null);           //  axios 이후 result-block side에 표시될 값 ref
+    const [displayText,setText] = useState(false);          // result-block side 랜더링 처리를 위한 useState
+    const [showDiff, setShowDiff] = useState(false);       //  Diff checker side 랜더링 처리를 위한 flag
+    const [originalCode, setOriginalCode] = useState('');   // Diff Checker 비교값 - code-block side
+    const [modifiedCode, setModifiedCode] = useState('');   // Diff Checker 비교값 - result-block side
+    const [responseText, setResponseText] = useState('');   // GPT Code Review 값 처리
+    const [loading, setLoading] = useState(false);        // MUI를 사용한 로딩바 처리
+    const [progress, setProgress] = useState(0);          // 로딩바 progress 처리
 
-    const responseText = `
-# 📢 PR 리뷰 요약
-
-## 1️⃣ PR 개요
-- **기능:** [어떤 기능/버그 수정인지 간략히 설명]
-- **주요 변경 사항:**
-  - [주요 코드 수정 내용 (ex. 함수 추가, 로직 변경, 리팩토링 등)]
-  - [중요한 아키텍처 변경사항이 있다면 설명]
-
-## 2️⃣ 코드 품질 리뷰
-✅ **잘된 점**:
-- [코드의 좋은 점 (ex. 가독성, 모듈화, 재사용성 등)]
-- [효율적인 알고리즘/디자인 패턴 사용 여부]
-
-⚠️ **개선 필요 사항**:
-- [명확하지 않은 코드 또는 개선이 필요한 부분]
-- [성능 최적화가 가능한 부분]
-- [예외 처리 누락, 보안 문제, 사이드 이펙트 발생 가능성]
-
-## 3️⃣ 추가 피드백 & 추천
-💡 **제안하는 개선 사항**:
-- [더 나은 코드 구조/설계 제안]
-- [리팩토링 제안]
-
-📌 **요청 사항**:
-- [추가 확인이 필요한 부분 (ex. 문서화, 주석 추가 등)]
-- [수정 후 다시 리뷰 요청할지 여부]
-
-✅ **최종 결론**:
-- [🔹 LGTM (Looks Good To Me) / ⏳ Needs Changes / ❌ Request Changes]
-
-되도록이면 동작확인에 대한 리뷰는 제외하고 코드 품질, 개선 사항 등 위의 양식 위주로 진행합니다.
-`;
-    // Monaco editor 인스턴스가 마운트될 때 참조 저장
+    //code-block 쪽 입력 값 처리 - start
     const handleEditorDidMount = (editor) => {
+        // Monaco editor 인스턴스가 마운트될 때 참조 저장
         editorRef.current = editor;
     };
 
+    const codeSubmit = async () => {
+        //코드 전송 버튼 클릭시 동작
+        setLoading(true);
+
+        await (async () => {
+            const inputCode = editorRef.current.getValue();
+            //result-block 쪽 텍스트 reference 를 초기화 하여 재 랜더링 유도
+            responseRef.current.setValue('');
+
+            try {
+                // DiffEditor 먼저 unmount - 하지 않으면 에러 발생
+                setShowDiff(false);
+                for (let i = 0; i <= 80; i += 5) {
+                    await new Promise((res) => setTimeout(res, 50)); // 딜레이
+                    setProgress(i);
+                }
+                //실제로 응답을 받은 시점 이후로 체이닝을 걸어서 로딩바 동작을 현실성 있게 조작
+                await getCodeReview(inputCode).then((review) =>{
+                    setLoading(false); //로딩창 닫기
+                    setResponseText(review);
+                    setIndex(0);
+                    setText(true);
+                });
+
+            } catch (error) {
+                alert("백엔드 서버로 부터 응답을 받을 수 없습니다.");
+            } finally {
+                setLoading(false); //로딩창 닫기
+                setProgress(0); // 초기화
+            }
+        })();
+    };
+    //code-block 쪽 입력 값 처리 - end
+
+    //result-block 쪽 입력 값 처리 - start
     const handleResultDidMount = (editor) => {
+        // Monaco editor 인스턴스가 마운트될 때 참조 저장
         responseRef.current = editor;
     };
 
     useEffect(() => {
-        if (displayText && index < responseText.length && responseRef.current) {
+        if (displayText && index < responseText?.length && responseRef.current) {
             const timeout = setTimeout(() => {
                 if(responseRef.current){
                     const currentText = responseRef.current.getValue();
@@ -68,24 +77,9 @@ function CodeReview(){
             return () => clearTimeout(timeout);
         }
     }, [index, displayText,responseText]);
+    //result-block 쪽 입력 값 처리 - end
 
-
-    const codeSubmit = () => {
-        console.log(editorRef.current.getValue());
-
-        // DiffEditor 먼저 unmount
-        setShowDiff(false);
-
-        // 언마운트가 끝났을 시간쯤에 텍스트 처리 시작
-        setTimeout(() => {
-            if (responseRef.current?.getValue()) {
-                responseRef.current.setValue('');
-            }
-            setIndex(0);
-            setText(true);
-        }, 100); // 1ms → 100ms 정도로 여유 있게
-    };
-
+    //DiffChecker 기능 -start
     const diffCheck = () =>{
         const original = editorRef.current.getValue();
         const modified = responseRef.current.getValue();
@@ -98,8 +92,37 @@ function CodeReview(){
             alert('두 영역 모두에 값이 있어야 차이점을 비교할 수 있어요.');
         }
     }
+    //DiffChecker 기능 -end
     return (
         <div className="container">
+            {loading && (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1300,
+                    }}
+                >
+                    <Box sx={{ width: '50%', mb: 2 }}>
+                        <LinearProgress variant="determinate" value={progress} />
+                    </Box>
+                    <Typography variant="h6" sx={{ color: '#fff' }}>
+                        {progress < 50
+                            ? `${progress}% 분석 중...`
+                            : progress < 100
+                                ? <>분석 완료!!<br/>코드 개선 사항 작성중~</>
+                                : '작업 완료!!!'}
+                    </Typography>
+                </Box>
+            )}
             <div className="section-title">
                 <h2>CodeReview With GPT</h2>
             </div>
@@ -107,12 +130,11 @@ function CodeReview(){
                 <div className="editor-container">
                     <Editor
                         className="code-block"
-                        height="400px"
                         defaultLanguage="markdown"
                         theme="vs-dark"
                         onMount={handleEditorDidMount}
                         options={{
-                            automaticLayout: true  // 요거 중요!
+                            automaticLayout: true
                         }}
                     />
                 </div>
@@ -135,9 +157,13 @@ function CodeReview(){
             <button className="diff-check-btn" onClick={diffCheck}>차이점 찾기</button>
 
             {showDiff && (
-                <Suspense fallback={<div style={{color: 'white'}}>Diff 로딩 중...</div>}>
-                    <DiffEditorWrapper original={originalCode} modified={modifiedCode}/>
-                </Suspense>
+                <div className="panel">
+                    <div className="editor-container">
+                        <Suspense fallback={<div style={{color: 'white'}}>Diff 로딩 중...</div>}>
+                            <DiffEditorWrapper original={originalCode} modified={modifiedCode}/>
+                        </Suspense>
+                    </div>
+                </div>
             )}
         </div>
     );
