@@ -20,7 +20,11 @@ function CodeReviewHistory({ history, onDelete, onCompare }) {
         <Box className="history-list">
             {history.map((item) => (
                 <Accordion key={item.id}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel-content"
+                        id="panel-header"
+                    >
                         <Box className="accordion-header">
                             <Typography variant="subtitle1">
                                 {item.title}
