@@ -40,9 +40,12 @@ function SidebarMenu(){
         <ul className="sidebar-menu">
             {menuData.map((menu, index) => (
                 <li key={index} className="menu-item">
-                    <button onClick={() => toggleMenu(index)}>
+                    <div 
+                        className="menu-button" 
+                        onClick={() => toggleMenu(index)}
+                    >
                         {menu.title}
-                    </button>
+                    </div>
                     <ul className={`submenu ${openMenus[index] ? 'open' : ''}`}>
                         {menu.children.map((item, i) => (
                             <li key={i} onClick={() => navigate(menu.routes[i])} >{item}</li>

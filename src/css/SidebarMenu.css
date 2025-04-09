@@ -9,7 +9,7 @@
     width: 100%;
 }
 
-.menu-item > button {
+.menu-button {
     width: 100%;
     background: none;
     border: none;
@@ -21,7 +21,7 @@
     transition: background 0.3s;
 }
 
-.menu-item > button:hover {
+.menu-button:hover {
     background-color: #444;
 }
 

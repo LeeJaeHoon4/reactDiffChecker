@@ -1,9 +1,10 @@
-import { Box, Typography, Paper, Accordion, AccordionSummary, AccordionDetails, IconButton, Button } from '@mui/material';
+import { Box, Typography, Paper, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CompareIcon from '@mui/icons-material/Compare';
 import Editor from '@monaco-editor/react';
 import { EDITOR_OPTIONS } from '@/constants/codeReview';
+
 
 function CodeReviewHistory({ history, onDelete, onCompare }) {
     if (history.length === 0) {
@@ -19,7 +20,7 @@ function CodeReviewHistory({ history, onDelete, onCompare }) {
     return (
         <Box className="history-list">
             {history.map((item) => (
-                <Accordion key={item.id}>
+                <Accordion key={item.reviewSeq}>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel-content"
@@ -27,30 +28,32 @@ function CodeReviewHistory({ history, onDelete, onCompare }) {
                     >
                         <Box className="accordion-header">
                             <Typography variant="subtitle1">
-                                {item.title}
+                                {item.regDt.split('T')[0] + " " + item.reviewSeq + "번째 리뷰"}
                             </Typography>
                             <Box className="accordion-actions">
-                                <Button
-                                    className="compare-button"
-                                    variant="outlined"
-                                    size="small"
-                                    startIcon={<CompareIcon />}
+                                <div
+                                    className="compare-button MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        onCompare(item.code, item.review);
+                                        onCompare(item.originalCode, item.reviewCode);
                                     }}
+                                    role="button"
+                                    tabIndex={0}
                                 >
+                                    <CompareIcon className="MuiButton-startIcon" />
                                     비교
-                                </Button>
-                                <IconButton 
+                                </div>
+                                <div 
+                                    className="MuiIconButton-root MuiIconButton-sizeSmall"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        onDelete(item.id);
+                                        onDelete(item.reviewSeq);
                                     }}
-                                    size="small"
+                                    role="button"
+                                    tabIndex={0}
                                 >
                                     <DeleteIcon />
-                                </IconButton>
+                                </div>
                             </Box>
                         </Box>
                     </AccordionSummary>
@@ -65,7 +68,7 @@ function CodeReviewHistory({ history, onDelete, onCompare }) {
                                     height="200px"
                                     defaultLanguage="markdown"
                                     theme="vs-dark"
-                                    value={item.code}
+                                    value={item.originalCode}
                                     options={EDITOR_OPTIONS}
                                 />
                             </Paper>
@@ -80,7 +83,7 @@ function CodeReviewHistory({ history, onDelete, onCompare }) {
                                     height="200px"
                                     defaultLanguage="markdown"
                                     theme="vs-dark"
-                                    value={item.review}
+                                    value={item.reviewCode}
                                     options={EDITOR_OPTIONS}
                                 />
                             </Paper>

@@ -1,6 +1,6 @@
 import axios from "./axios";
 
-export const getCodeReview = async (patch) =>{
+export const sendCodeReview = async (patch) =>{
     try {
         const response = await axios.post(
             "/test/testConnect",
@@ -13,6 +13,32 @@ export const getCodeReview = async (patch) =>{
         )
         return response.data;
 
+    }catch(error){
+        console.log("error",error);
+        throw error;
+    }
+};
+
+
+export const getCodeReviewHistory = async () =>{
+    try {
+        const response = await axios.post("/test/getCodeReviewHistory");
+        console.log("response",response);
+        return response.data;
+    }catch(error){
+        console.log("error",error);
+        throw error;
+    }
+};
+
+export const deleteCodeReviewHistory = async (seq) =>{
+    try {
+        const response = await axios.post("/test/deleteCodeReviewHistory", null, {
+            params: {
+                seq: Number(seq)
+            }
+        });
+        return response.data;
     }catch(error){
         console.log("error",error);
         throw error;

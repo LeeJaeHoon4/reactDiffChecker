@@ -4,25 +4,25 @@ import { Box } from '@mui/material';
 import { CODE_HISTORY_KEY } from '@/constants/codeReview';
 import CodeReviewHistory from '@/components/codeReview/CodeReviewHistory';
 import { useNavigate } from 'react-router-dom';
+import { getCodeReviewHistory, deleteCodeReviewHistory } from '@/api/codeReview';
 
 function CodeHist() {
     const [history, setHistory] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // localStorage에서 히스토리 로드
-        const loadHistory = () => {
-            const savedHistory = JSON.parse(localStorage.getItem(CODE_HISTORY_KEY) || '[]');
-            setHistory(savedHistory);
-        };
-
         loadHistory();
     }, []);
 
-    const handleDelete = (id) => {
-        const updatedHistory = history.filter(item => item.id !== id);
-        setHistory(updatedHistory);
-        localStorage.setItem(CODE_HISTORY_KEY, JSON.stringify(updatedHistory));
+    const loadHistory = async () => {
+        const savedHistory = await getCodeReviewHistory();
+        console.log("savedHistory",savedHistory);
+        setHistory(savedHistory.content);
+    };
+
+    const handleDelete = async (seq) => {
+        const updatedHistory = await deleteCodeReviewHistory(+seq);
+        loadHistory();
     };
 
     const handleCompare = (code, review) => {

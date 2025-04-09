@@ -1,5 +1,5 @@
 import {lazy, Suspense, useEffect, useRef, useState} from 'react';
-import {getCodeReview} from "@/api/codeReview";
+import {sendCodeReview} from "@/api/codeReview";
 import "@/css/codeReview.css";
 import Editor from '@monaco-editor/react';
 import { Box } from '@mui/material';
@@ -113,7 +113,7 @@ function CodeReview(){
             });
 
             // API 호출
-            const review = await getCodeReview(inputCode);
+            const review = await sendCodeReview(inputCode);
 
             // 60~80%: 코드 개선 완료 및 리뷰 저장 중
             await new Promise((resolve) => {
